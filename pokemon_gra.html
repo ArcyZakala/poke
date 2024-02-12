@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pokemon Clicker</title>
+    <style>
+        body {
+            text-align: center;
+            font-family: Arial, sans-serif;
+        }
+        #pokemon {
+            width: 200px;
+            height: 200px;
+            cursor: pointer;
+        }
+        #score {
+            font-size: 24px;
+            margin-top: 20px;
+        }
+    </style>
+</head>
+<body>
+
+    <h1>Pokemon Clicker</h1>
+    <img id="pokemon" src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/1.png" alt="Pokemon">
+    <p id="score">Score: 0</p>
+
+    <script>
+
+        let score = 0;
+
+        function onClick() {
+            score++;
+            updateScore();
+            changePokemonImage();
+        }
+
+        function updateScore() {
+            document.getElementById("score").textContent = "Score: " + score;
+        }
+
+        function changePokemonImage() {
+            const pokemonImage = document.getElementById("pokemon");
+            const randomPokemonId = Math.floor(Math.random() * 151) + 1; // Zakres od 1 do 151
+            const imageUrl = `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/${randomPokemonId}.png`;
+            pokemonImage.src = imageUrl;
+        }
+
+        document.getElementById("pokemon").addEventListener("click", onClick);
+
+    </script>
+
+    <!-- Dodaj poniższy kod, aby dodać klienta WebSocket -->
+    <script>
+        const socket = new WebSocket('ws://localhost:3000');
+
+        socket.addEventListener('message', (event) => {
+            const data = JSON.parse(event.data);
+
+            // Obsługa aktualizacji wyniku od serwera
+            if (data.type === 'scoreUpdate') {
+                updateScore(data.score);
+            }
+        });
+
+        document.getElementById('pokemon').addEventListener('click', () => {
+            // Wysyłanie zdarzenia kliknięcia do serwera
+            socket.send(JSON.stringify({ type: 'click' }));
+        });
+    </script>
+
+</body>
+</html>
